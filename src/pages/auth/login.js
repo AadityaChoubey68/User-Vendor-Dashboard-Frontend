@@ -6,8 +6,9 @@ export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "user", // default
+    role: "user",
   });
+  const [loading, setLoading] = useState(false); // <-- loading state
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,6 +16,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
 
     const endpoint =
       formData.role === "user"
@@ -49,6 +51,7 @@ export default function Login() {
           alert("Login failed!");
         }
 
+        setLoading(false); // Stop loading on error
         return;
       }
 
@@ -58,10 +61,12 @@ export default function Login() {
         router.push(`/${formData.role}/dashboard`);
       } else {
         alert(data.message || "Login failed!");
+        setLoading(false);
       }
     } catch (err) {
       console.error("Login error:", err);
       alert("Something went wrong. Try again.");
+      setLoading(false);
     }
   };
 
@@ -105,8 +110,36 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-            Login
+            disabled={loading}
+            className={`w-full flex justify-center items-center bg-blue-600 text-white py-2 rounded transition ${
+              loading ? "bg-blue-400 cursor-not-allowed" : "hover:bg-blue-700"
+            }`}>
+            {loading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  />
+                </svg>
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
 

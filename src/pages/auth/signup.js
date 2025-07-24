@@ -10,12 +10,15 @@ export default function Signup() {
     role: "user", // default
   });
 
+  const [loading, setLoading] = useState(false); // <-- New loading state
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
     const endpoint =
       formData.role === "user"
         ? "https://user-vendor-backend.onrender.com/user/signup"
@@ -37,17 +40,16 @@ export default function Signup() {
       const data = await response.json();
 
       if (response.ok) {
-        // Save token and role (if needed)
         localStorage.setItem("role", formData.role);
-
-        // Redirect to role-based dashboard
-        router.push(`/${formData.role}/dashboard`);
+        router.push("/auth/login"); // Redirect to login
       } else {
         alert(data.message || "Signup failed!");
       }
     } catch (err) {
       console.error("Signup error:", err);
       alert("Something went wrong. Please try again later.");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -101,8 +103,13 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-            Signup
+            disabled={loading}
+            className={`w-full text-white py-2 rounded transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}>
+            {loading ? "Signing up..." : "Signup"}
           </button>
         </form>
 
